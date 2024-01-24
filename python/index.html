@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado Generator</title>
+</head>
+<body>
+    <div>
+        <label for="frenteImage">Imagem da Frente:</label>
+        <input type="file" id="frenteImage" accept="image/*">
+    </div>
+    <div>
+        <label for="versoImage">Imagem do Verso:</label>
+        <input type="file" id="versoImage" accept="image/*">
+    </div>
+    <button onclick="carregarFabricEgerarCertificado()">Gerar Certificado</button>
+
+    <!-- Canvas para a imagem da Frente -->
+    <canvas id="canvasFrente" width="200" height="141"></canvas>
+
+    <!-- Canvas para a imagem do Verso -->
+    <canvas id="canvasVerso" width="200" height="141"></canvas>
+
+    <script>
+        function redimensionarImagem(imagem, largura, altura) {
+            var proporcao = Math.min(largura / imagem.width, altura / imagem.height);
+
+            var novaLargura = imagem.width * proporcao;
+            var novaAltura = imagem.height * proporcao;
+
+            return { width: novaLargura, height: novaAltura };
+        }
+
+        function carregarFabricEgerarCertificado() {
+            var scriptFabric = document.createElement('script');
+            scriptFabric.src = 'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js';
+            scriptFabric.onload = function () {
+                // Fabric.js está carregado, agora podemos chamar a função de geração de certificado
+                gerarCertificado();
+            };
+            document.head.appendChild(scriptFabric);
+        }
+
+        function gerarCertificado() {
+            var frenteInput = document.getElementById('frenteImage');
+            var versoInput = document.getElementById('versoImage');
+
+            var frenteImage = new Image();
+            var versoImage = new Image();
+
+            frenteImage.src = URL.createObjectURL(frenteInput.files[0]);
+            versoImage.src = URL.createObjectURL(versoInput.files[0]);
+
+            frenteImage.onload = function () {
+                var dimensoesFrente = redimensionarImagem(frenteImage, 200, 141);
+
+                var canvasFrente = new fabric.Canvas('canvasFrente');
+                canvasFrente.setWidth(dimensoesFrente.width);
+                canvasFrente.setHeight(dimensoesFrente.height);
+
+                canvasFrente.add(new fabric.Image(frenteImage, { width: dimensoesFrente.width, height: dimensoesFrente.height }));
+            };
+
+            versoImage.onload = function () {
+                var dimensoesVerso = redimensionarImagem(versoImage, 200, 141);
+
+                var canvasVerso = new fabric.Canvas('canvasVerso');
+                canvasVerso.setWidth(dimensoesVerso.width);
+                canvasVerso.setHeight(dimensoesVerso.height);
+
+                canvasVerso.add(new fabric.Image(versoImage, { width: dimensoesVerso.width, height: dimensoesVerso.height }));
+            };
+        }
+    </script>
+</body>
+</html>
