@@ -48,7 +48,6 @@ function App() {
       const workbook = read(data, { type: 'binary' });
       const rows = utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
 
-      // Assume that the Excel has columns 'nome' and 'cpf'
       const headers = rows[0];
       const dados = rows.slice(1).map((row) => {
         return headers.reduce((obj, header, index) => {
@@ -81,26 +80,21 @@ function App() {
         await Promise.all(
           dados.map(async (aluno, index) => {
             const pdf = new jsPDF();
-  
-            // Convert front image to base64
+
             const frenteBase64 = await urlToBase64(frente);
             pdf.addImage(frenteBase64, 'JPEG', 10, 40, 100, 50);
   
-            // Convert back image to base64
             const versoBase64 = await urlToBase64(verso);
             pdf.addImage(versoBase64, 'JPEG', 10, 100, 100, 50);
-  
-            // Add text elements to PDF
+
             textElements.forEach((element) => {
               pdf.text(element.text, element.x, element.y);
             });
   
-            // Save the PDF to a file
             zip.file(`certificado_${index + 1}.pdf`, await pdf.output('blob'));
           })
         );
   
-        // Generate a zip file containing all the PDFs
         const content = await zip.generateAsync({ type: 'blob' });
         saveAs(content, 'certificados.zip');
       } catch (error) {
